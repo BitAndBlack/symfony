@@ -249,14 +249,60 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         }
 
         if ($currentLineLength) {
-            $prefix = substr($text, 0, $i = $width - $currentLineLength)."\n";
-            $text = substr($text, $i);
+            $prefix = mb_substr($text, 0, $i = $width - $currentLineLength, 'UTF-8')."\n";
+            $text = mb_substr($text, $i, null, 'UTF-8');
         } else {
             $prefix = '';
         }
 
         preg_match('~(\\n)$~', $text, $matches);
-        $text = $prefix.preg_replace('~([^\\n]{'.$width.'})\\ *~', "\$1\n", $text);
+
+        $textPieces = [];
+        $text = ltrim($text);
+        $textToPrepend = '';
+        $widthTemp = $width;
+
+        while ('' !== $piece = mb_substr($text, 0, $widthTemp, 'UTF-8')) {
+            $text = mb_substr($text, $widthTemp, null, 'UTF-8');
+            $text = ltrim($text);
+            $pieceTrimmed = rtrim($piece);
+            $pieceTrimmedLength = mb_strlen($pieceTrimmed, 'UTF-8');
+            $textToPrependLength = mb_strlen($textToPrepend, 'UTF-8');
+
+            if (' ' === mb_substr($piece, $pieceTrimmedLength, 1, 'UTF-8')) {
+                $pieceTrimmed .= ' ';
+                ++$pieceTrimmedLength;
+            }
+
+            if ($width <= $textToPrependLength) {
+                $textPieces[] = $textToPrepend;
+                $textToPrepend = '';
+                $widthTemp = $width;
+                continue;
+            }
+
+            if ($width <= $textToPrependLength + $pieceTrimmedLength) {
+                $textPieces[] = $textToPrepend.$pieceTrimmed;
+                $textToPrepend = '';
+                $widthTemp = $width;
+                continue;
+            }
+
+            if ($width > $pieceTrimmedLength) {
+                $textToPrepend .= $pieceTrimmed;
+                $widthTemp = $width - ($textToPrependLength + $pieceTrimmedLength);
+                continue;
+            }
+
+            $textPieces[] = $pieceTrimmed;
+            $widthTemp = $width;
+        }
+
+        if ('' !== $textToPrepend) {
+            $textPieces[] = $textToPrepend;
+        }
+
+        $text = $prefix.implode(PHP_EOL, $textPieces);
         $text = rtrim($text, "\n").($matches[1] ?? '');
 
         if (!$currentLineLength && '' !== $current && "\n" !== substr($current, -1)) {
@@ -266,7 +312,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         $lines = explode("\n", $text);
 
         foreach ($lines as $line) {
-            $currentLineLength += \strlen($line);
+            $currentLineLength += mb_strlen($line, 'UTF-8');
             if ($width <= $currentLineLength) {
                 $currentLineLength = 0;
             }

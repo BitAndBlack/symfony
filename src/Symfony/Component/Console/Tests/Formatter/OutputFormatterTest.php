@@ -331,6 +331,8 @@ EOF
         $this->assertSame("Lore\nm \e[37;41mip\e[39;49m\n\e[37;41msum\e[39;49m \ndolo\nr \e[32msi\e[39m\n\e[32mt\e[39m am\net", $formatter->formatAndWrap('Lorem <error>ipsum</error> dolor <info>sit</info> amet', 4));
         $this->assertSame("Lorem \e[37;41mip\e[39;49m\n\e[37;41msum\e[39;49m dolo\nr \e[32msit\e[39m am\net", $formatter->formatAndWrap('Lorem <error>ipsum</error> dolor <info>sit</info> amet', 8));
         $this->assertSame("Lorem \e[37;41mipsum\e[39;49m dolor \e[32m\e[39m\n\e[32msit\e[39m, \e[37;41mamet\e[39;49m et \e[32mlauda\e[39m\n\e[32mntium\e[39m architecto", $formatter->formatAndWrap('Lorem <error>ipsum</error> dolor <info>sit</info>, <error>amet</error> et <info>laudantium</info> architecto', 18));
+        $this->assertSame("A really \e[37;41ml\e[39;49m\n\e[37;41mong\e[39;49m title \nthat could\nneed multi\nple lines \n– – ÿ𩹹", $formatter->formatAndWrap('A really <error>long</error> title that could           need multiple lines – – ÿ𩹹', 10));
+        $this->assertSame("Â rèälly \e[37;41ml\e[39;49m\n\e[37;41möng\e[39;49m tîtlè \nthät cöüld\nnèêd múltî\nplê lín€s \n– – ÿ𩹹", $formatter->formatAndWrap('Â rèälly <error>löng</error> tîtlè thät cöüld           nèêd múltîplê lín€s – – ÿ𩹹', 10));
 
         $formatter = new OutputFormatter();
 
@@ -339,6 +341,9 @@ EOF
         $this->assertSame("pre\nfoo\nbar\nbaz\npos\nt", $formatter->formatAndWrap('pre <error>foo bar baz</error> post', 3));
         $this->assertSame("pre \nfoo \nbar \nbaz \npost", $formatter->formatAndWrap('pre <error>foo bar baz</error> post', 4));
         $this->assertSame("pre f\noo ba\nr baz\npost", $formatter->formatAndWrap('pre <error>foo bar baz</error> post', 5));
+        $this->assertSame("A really l\nong title \nthat could\nneed multi\nple lines \n– – ÿ𩹹", $formatter->formatAndWrap('A really long title that could           need multiple lines – – ÿ𩹹', 10));
+        $this->assertSame("A really l\nong title \nthat could\nneed multi\nple lines \n– – ÿ𩹹", $formatter->formatAndWrap('A really <error>long</error> title that could           need multiple lines – – ÿ𩹹', 10));
+        $this->assertSame("Â rèälly l\nöng tîtlè \nthät cöüld\nnèêd múltî\nplê lín€s \n– – ÿ𩹹", $formatter->formatAndWrap('Â rèälly <error>löng</error> tîtlè thät cöüld           nèêd múltîplê lín€s – – ÿ𩹹', 10));
     }
 }
 
